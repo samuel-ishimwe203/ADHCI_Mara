@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Healing Circle — Chat</title>
+    <style>
+      /* Minimal styles (same as src/styles.css) */
+      :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+      body { margin: 0; }
+      .min-h-screen { min-height: 100vh; }
+      .bg-gray-50 { background-color: #f9fafb; }
+      .bg-white { background-color: white; }
+      .rounded-2xl { border-radius: 1rem; }
+      .shadow { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+      .p-4 { padding: 1rem; }
+      .flex { display: flex; }
+      .items-center { align-items: center; }
+      .justify-center { justify-content: center; }
+      .w-full { width: 100%; }
+      .max-w-2xl { max-width: 42rem; }
+      .text-xl { font-size: 1.125rem; }
+      .font-semibold { font-weight: 600; }
+      .text-sm { font-size: 0.875rem; }
+      .text-gray-500 { color: #6b7280; }
+      .px-3 { padding-left: .75rem; padding-right: .75rem; }
+      .py-1 { padding-top: .25rem; padding-bottom: .25rem; }
+      .px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .py-2 { padding-top: .5rem; padding-bottom: .5rem; }
+      .bg-indigo-600 { background-color: #4f46e5; }
+      .text-white { color: white; }
+      .rounded { border-radius: .375rem; }
+      .flex-1 { flex: 1; }
+      .overflow-auto { overflow: auto; }
+      .border { border: 1px solid #e5e7eb; }
+      .p-2 { padding: .5rem; }
+      .mb-3 { margin-bottom: .75rem; }
+      .justify-end { justify-content: flex-end; }
+      .justify-start { justify-content: flex-start; }
+      .bg-gray-100 { background-color: #f3f4f6; }
+      .rounded-lg { border-radius: .5rem; }
+      .mt-3 { margin-top: .75rem; }
+      .gap-2 { gap: .5rem; }
+      .mt-4 { margin-top: 1rem; }
+      .text-gray-700 { color: #374151; }
+      .text-gray-400 { color: #9ca3af; }
+      .mt-2 { margin-top: .5rem; }
+      .max-w-75 { max-width: 75%; }
+      input { box-sizing: border-box; }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <div id="root"></div>
+
+    <!-- React + ReactDOM (development UMD builds) and Babel for JSX in-browser -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+    <!-- App code (JSX) -->
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      // If running locally, talk to Flask on port 5000. If hosted elsewhere, use relative paths.
+      const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:5000' : '';
+
+      // Fallback local rule-based response (same text as server rule-based)
+      function ruleBasedResponse(userText) {
+        return (
+          "Thank you for sharing that. I'm sorry you're feeling this way — " +
+          "could you tell me a bit more about what's happening right now? " +
+          "If you're in immediate danger, please contact local emergency services."
+        );
+      }
+
+      // Helper: attempt to call backend; if fails, return fallback responses
+      async function apiPost(path, body) {
+        const url = API_BASE + path;
+        try {
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(body)
+          });
+          if (!res.ok) throw new Error('bad status');
+          return await res.json();
+        } catch (e) {
+          // fallback behavior for demo without backend
+          if (path === '/api/chat') {
+            // simple crisis detection
+            const t = (body.message || '').toLowerCase();
+            const crisisPatterns = [/kill myself/, /i want to die/, /suicid/, /end my life/, /hurting myself/, /cant go on/, /no reason to live/, /die alone/];
+            for (const p of crisisPatterns) if (p.test(t)) return { ok: true, crisis: true, reply: "I'm really sorry — it sounds like you're in serious distress. If you're thinking about harming yourself, please contact emergency services now." };
+            return { ok: true, crisis: false, reply: ruleBasedResponse(body.message) };
+          }
+          if (path === '/api/journal') {
+            // save to localStorage under session
+            const session = body.session_id || 'anon';
+            const key = 'journals_' + session;
+            const existing = JSON.parse(localStorage.getItem(key) || '[]');
+            const entry = { id: Date.now(), created_at: new Date().toISOString(), content: body.content };
+            existing.unshift(entry);
+            localStorage.setItem(key, JSON.stringify(existing));
+            return { ok: true };
+          }
+          return { ok: false, error: 'offline' };
+        }
+      }
+
+      async function apiGet(path) {
+        const url = API_BASE + path;
+        try {
+          const res = await fetch(url);
+          if (!res.ok) throw new Error('bad status');
+          return await res.json();
+        } catch (e) {
+          // fallback for /api/journal and /api/resources
+          if (path.startsWith('/api/journal')) {
+            const url = new URL(window.location.href);
+            const params = new URLSearchParams(path.split('?')[1] || '');
+            const session = params.get('session_id') || 'anon';
+            const key = 'journals_' + session;
+            const existing = JSON.parse(localStorage.getItem(key) || '[]');
+            return { ok: true, entries: existing };
+          }
+          if (path === '/api/resources') {
+            return {
+              ok: true,
+              hotlines: [{name: 'Local Emergency', phone: '112'}],
+              advice: ['If you\'re feeling overwhelmed, try grounding: name 5 things you can see...']
+            };
+          }
+          return { ok: false, error: 'offline' };
+        }
+      }
+
+      function ChatApp() {
+        const [messages, setMessages] = useState([{ from: 'bot', text: "Hi — I'm here to listen. What's on your mind?" }]);
+        const [input, setInput] = useState('');
+        const [sessionId] = useState(() => 'session_' + Math.random().toString(36).slice(2));
+        const [journals, setJournals] = useState([]);
+        const [loading, setLoading] = useState(false);
+        const bottomRef = useRef();
+
+        useEffect(() => {
+          apiGet('/api/journal?session_id=' + sessionId).then(d => { if (d.ok) setJournals(d.entries); }).catch(()=>{});
+        }, [sessionId]);
+
+        useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+        const sendMessage = async () => {
+          if (!input.trim()) return;
+          const text = input.trim();
+          setMessages(m => [...m, { from: 'user', text }]);
+          setInput('');
+          setLoading(true);
+          try {
+            const data = await apiPost('/api/chat', { session_id: sessionId, message: text });
+            if (data.ok) {
+              setMessages(m => [...m, { from: 'bot', text: data.reply }]);
+              if (data.crisis) setMessages(m => [...m, { from: 'bot', text: "If you're in danger, please call local emergency services now." }]);
+            } else {
+              setMessages(m => [...m, { from: 'bot', text: 'Sorry, something went wrong.' }]);
+            }
+          } catch (e) {
+            setMessages(m => [...m, { from: 'bot', text: 'Network error.' }]);
+          } finally { setLoading(false); }
+        };
+
+        const saveJournal = async () => {
+          const content = prompt('Write your journal entry:');
+          if (!content) return;
+          await apiPost('/api/journal', { session_id: sessionId, content });
+          const d = await apiGet('/api/journal?session_id=' + sessionId);
+          if (d.ok) setJournals(d.entries);
+        };
+
+        return (
+          <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl bg-white rounded-2xl shadow p-4 flex flex-col">
+              <header className="flex items-center justify-between mb-4">
+                <div>
+                  <h1 className="text-xl font-semibold">Healing Circle — Chat</h1>
+                  <p className="text-sm text-gray-500">An empathetic space to talk. This is a prototype.</p>
+                </div>
+                <div>
+                  <button onClick={saveJournal} className="px-3 py-1 bg-indigo-600 text-white rounded">Save Journal</button>
+                </div>
+              </header>
+
+              <main className="flex-1 overflow-auto p-2 border rounded" style={{minHeight: '300px'}}>
+                {messages.map((m, i) => (
+                  <div key={i} className={"mb-3 flex " + (m.from === 'user' ? 'justify-end' : 'justify-start')}>
+                    <div style={{ padding: '8px 12px', borderRadius: 12, maxWidth: '75%', background: m.from === 'user' ? '#4f46e5' : '#f3f4f6', color: m.from === 'user' ? '#fff' : '#111' }}>
+                      {m.text}
+                    </div>
+                  </div>
+                ))}
+                <div ref={bottomRef} />
+              </main>
+
+              <footer className="mt-3 flex items-center gap-2">
+                <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }} className="flex-1 px-3 py-2 border rounded" placeholder="Write how you're feeling..." />
+                <button onClick={sendMessage} disabled={loading} className="px-4 py-2 bg-green-600 text-white rounded">{loading ? '...' : 'Send'}</button>
+              </footer>
+
+              <section className="mt-4">
+                <h3 className="text-sm font-semibold">Journal entries</h3>
+                <ul className="text-sm text-gray-700">
+                  {journals.length === 0 && <li className="text-gray-400">No entries yet</li>}
+                  {journals.map(j => (
+                    <li key={j.id} className="mt-2 border p-2 rounded">
+                      <div className="text-xs text-gray-500">{new Date(j.created_at).toLocaleString()}</div>
+                      <div>{j.content}</div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<ChatApp />);
+    </script>
+  </body>
+</html>
