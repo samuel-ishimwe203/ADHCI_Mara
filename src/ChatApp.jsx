@@ -63,7 +63,7 @@ export default function ChatApp() {
   // Quick Mood Chips (Compact, inline)
   const quickMoods = [
     { emoji: "😊", text: "I'm feeling happy!!" },
-    { emoji: "😢", text: "I'm feeling sad." },
+    { emoji: "😢", text: "I'm feeling sad.." },
     { emoji: "😟", text: "I'm anxious." },
     { emoji: "😐", text: "I'm okay." }
   ];
