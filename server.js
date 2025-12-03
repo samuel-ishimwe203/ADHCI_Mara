@@ -11,6 +11,9 @@ import path from 'path';
 // Load .env with explicit path
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
+// Debug: Log DATABASE_URL to check loading (remove after fix)
+console.log('Loaded DATABASE_URL:', process.env.DATABASE_URL ? 'OK' : 'MISSING');
+
 const app = express();
 const port = 3000;
 
@@ -19,7 +22,7 @@ app.use(express.json());
 
 const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Dev SSL workaround
+  ssl: { rejectUnauthorized: false } // Enable SSL for Neon, ignore cert errors in dev
 });
 initDb(pool); // Init tables if needed
 
