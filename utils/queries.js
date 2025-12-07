@@ -32,7 +32,7 @@ export const saveJournalQuery = `
 
 export const getJournalsQuery = `
   SELECT id, created_at, content FROM journals 
-  WHERE session_id = $1 ORDER BY created_at DESC;
+  WHERE session_id = $1 ORDER BY created_at DESC
 `;
 
 export const initUsersTable = `
