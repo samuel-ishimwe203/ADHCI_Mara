@@ -101,7 +101,7 @@ export default function ChatApp() {
       sad: 'border-red-200 bg-red-50',
       neutral: 'border-yellow-200 bg-yellow-50'
     };
-    return classes[mood] || 'border-gray-200 bg-gray-50';
+    return classes[mood] || 'border-gray-200 bg-gray-50'
   };
 
   return (
