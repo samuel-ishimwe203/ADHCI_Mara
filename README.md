@@ -12,7 +12,7 @@ Recommended (PowerShell):
 powershell -ExecutionPolicy RemoteSigned -File .\run_all.ps1
 ```
 
-Or from cmd.exe, run
+Or from cmd.exe, run:
 
 ```
 run_all.bat
