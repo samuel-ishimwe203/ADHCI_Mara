@@ -76,7 +76,7 @@ export default function ChatApp() {
   const quickJournal = async () => {
     const content = prompt("Quick journal note:");
     if (!content?.trim()) return;
-    await fetch("/api/journal", {
+    await fetch("/api/journal" {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ session_id: sessionId, content: content.trim() })
