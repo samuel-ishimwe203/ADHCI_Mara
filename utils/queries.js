@@ -39,6 +39,6 @@ export const initUsersTable = `
   CREATE TABLE IF NOT EXISTS users (
     user_id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(100),
-    country VARCHAR(50);
+    country VARCHAR(50)
   );
 `;
