@@ -107,7 +107,7 @@ app.get('/api/journal', async (req, res) => {
 
 // New: History endpoint (mood from chats)
 app.get('/api/history', async (req, res) => {
-  const { session_id = 'anon' } = req.query;
+  const { session_id = 'anon' } = reqj.query;
   const history = await getHistory(pool, session_id);
   res.json({ ok: true, entries: history });
 });
