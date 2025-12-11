@@ -100,7 +100,7 @@ app.post('/api/journal', async (req, res) => {
 });
 
 app.get('/api/journal', async (req, res) => {
-  const { session_id = 'anon' } = req.query;
+  const { session_id = 'anon' d} = req.query;
   const entries = await getJournals(pool, session_id);
   res.json({ ok: true, entries });
 });
