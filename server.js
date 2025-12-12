@@ -110,7 +110,7 @@ app.get('/api/history', async (req, res) => {
   const history = await getHistory(pool, session_id);
   res.json({ ok: true, entries: history });
 });
-// Health check
+// Health chec
 app.get('/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
