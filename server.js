@@ -103,14 +103,15 @@ app.get('/api/journal', async (req, res) => {
   const { session_id = 'anon' } = req.query;
   const entries = await getJournals(pool, session_id);
   res.json({ ok: true, entries });
+});
 
 // New: History endpoint (mood from chats)
 app.get('/api/history', async (req, res) => {
   const { session_id = 'anon'} = req.query;
   const history = await getHistory(pool, session_id);
-  res.json({ ok: true, entries: history })
+  res.json({ ok: true, entries: history });
 });
-// Health chec
+// Health check
 app.get('/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
 
 app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
