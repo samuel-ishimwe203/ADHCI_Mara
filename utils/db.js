@@ -24,7 +24,7 @@ export async function getHistory(pool, userId) {
     const { rows } = await pool.query(getHistoryQuery, [userId]);
     return rows;
   } catch (err) {
-    console.erro('Get history error:', err);
+    console.error('Get history error:', err);
     return [];
   }
 }
