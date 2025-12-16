@@ -5,7 +5,7 @@ export async function initDb(pool) {
     await pool.query(initMoodTable);
     await pool.query(initJournalsTable);
     await pool.query(initUsersTable); // Optional users
-    console.log('DB tables initialized');
+    console.log('DB tables initialized'
   } catch (err) {
     console.error('DB init error:', err);
   }
