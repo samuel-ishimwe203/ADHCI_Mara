@@ -114,7 +114,7 @@ export default function ChatApp() {
         </header>
         
         {/* Main Chat - 80% Space */}
-        <main className="flex-1 overflow-y-auto p-4 space-y-6"> {/* More space-y for airy feel */}
+        <main className="fex-1 overflow-y-auto p-4 space-y-6"> {/* More space-y for airy feel */}
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"} animate-fadeIn`}>
               <div className={`max-w-[70%] p-4 rounded-2xl shadow-sm ${m.from === "user" ? "bg-indigo-600 text-white" : `bg-gradient-to-r from-gray-100 to-lavender-100 text-gray-800 ${getMoodClass(m.mood)}`}`}>
