@@ -111,7 +111,7 @@ export default function ChatApp() {
         <header className="p-4 border-b border-gray-200 flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-800">Mara 🌸</h1> {/* Minimal title */}
           <button onClick={toggleMore} className="text-gray-500 hover:text-gray-700 text-sm">More</button> {/* Single toggle */}
-        </header>
+        </header
         
         {/* Main Chat - 80% Space */}
         <main className="flex-1 overflow-y-auto p-4 space-y-6"> {/* More space-y for airy feel */}
