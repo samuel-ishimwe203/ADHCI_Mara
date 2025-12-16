@@ -23,7 +23,7 @@ export async function getHistory(pool, userId) {
   try {
     const { rows } = await pool.query(getHistoryQuery, [userId]);
     return rows;
-  } catch (err) {
+  } catch (err)
     console.error('Get history error:', err);
     return [];
   }
