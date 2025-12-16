@@ -109,7 +109,7 @@ app.get('/api/journal', async (req, res) => {
 app.get('/api/history', async (req, res) => {
   const { session_id = 'anon'} = req.query;
   const history = await getHistory(pool, session_id);
-  res.json({ ok: true, entries: history }
+  res.json({ ok: true, entries: history })
 });
 // Health check
 app.get('/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
