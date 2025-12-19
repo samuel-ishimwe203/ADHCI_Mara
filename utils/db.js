@@ -15,7 +15,7 @@ export async function saveMood(pool, userId, message, mood) {
   try {
     await pool.query(saveMoodQuery, [userId, message, mood]);
   } catch (err) {
-    console.error('Save mood error:', err);
+    console.error('Save ood error:', err);
   }
 }
 
